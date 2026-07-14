@@ -1,17 +1,16 @@
-class Product:
-    def __init__(
-        self,
-        id: int,
-        sku: int,
-        product_name: str,
-        product_cost: int,
-        stock_quantity: int,
-    ):
-        self.id = id
-        self.sku = sku
-        self.product_name = product_name
-        self.product_cost = product_cost
-        self.stock_quantity = stock_quantity
+from sqlalchemy import Column, Integer, String
+
+from database.database import Base
+
+
+class Product(Base):
+    __tablename__ = "products"
+
+    id = Column(Integer, primary_key=True)
+    sku = Column(Integer, unique=True, nullable=False, index=True)
+    product_name = Column(String, nullable=False)
+    product_cost = Column(Integer, nullable=False)
+    stock_quantity = Column(Integer, nullable=False)
 
     def change_product_cost(self, new_product_cost: int) -> None:
         """Изменение стоимости продукта"""

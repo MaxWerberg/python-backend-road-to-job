@@ -1,9 +1,15 @@
-class User:
-    def __init__(self, id: int, username: str, email: str, password_hash: bytes):
-        self.id = id
-        self.username = username
-        self.email = email
-        self.password_hash = password_hash
+from sqlalchemy import Column, Integer, LargeBinary, String
+
+from database.database import Base
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True)
+    username = Column(String, unique=False, nullable=False)
+    email = Column(String, unique=True, nullable=False, index=True)
+    password_hash = Column(LargeBinary, nullable=False)
 
     def update_password_hash(self, new_hash: bytes) -> None:
         self.password_hash = new_hash
