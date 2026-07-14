@@ -5,33 +5,33 @@ from repositories.user_repository import UserRepository
 
 
 class UserService:
+    """Управляет бизнес-логикой работы с пользователями"""
+
     def __init__(self, repository: UserRepository):
         self.repository = repository
 
     def _hash_password(self, password: str) -> bytes:
-        """Внутренний метод, создает хэщ"""
+        """Хэширует строку пароля с использованием соли"""
         salt = bcrypt.gensalt()
         return bcrypt.hashpw(password.encode(), salt)
 
     def _verify_password(self, password: str, password_hash: bytes) -> bool:
-        """Внутренний метод, проверяет хэш"""
+        """Проверяет соответствие сырого пароля его хэшу"""
         return bcrypt.checkpw(password.encode(), password_hash)
 
-    def registration(
-        self, id: int, username: str, email: str, raw_password: str
-    ) -> User:
-        """Регистрация пользователя"""
+    def registration(self, username: str, email: str, raw_password: str) -> User:
+        """Регистрирует нового пользователя"""
         existing_user = self.repository.get_by_email(email)
         if existing_user:
             raise ValueError(f"Пользователь c почтой {existing_user.email} существует")
 
         password_hash = self._hash_password(raw_password)
-        user = User(id=id, username=username, email=email, password_hash=password_hash)
+        user = User(username=username, email=email, password_hash=password_hash)
         created_user = self.repository.create(user)
         return created_user
 
     def change_password(self, user_id: int, old_pass: str, new_pass: str) -> User:
-        """Изменение пароля пользователя"""
+        """Изменяет текущий пароль пользователя на новый"""
         user = self.repository.get_by_id(user_id)
         if not user:
             raise ValueError(f"Пользователь c ID {user_id} не найден")
@@ -45,7 +45,7 @@ class UserService:
         return self.repository.update(user)
 
     def delete_user(self, user_id: int) -> bool:
-        """Удаление пользователя"""
+        """Удаляет пользователя по его идентификатору"""
         is_delete = self.repository.delete(user_id)
         if not is_delete:
             raise ValueError(f"Пользователь c ID {user_id} не найден")

@@ -4,6 +4,8 @@ from database.database import Base
 
 
 class Product(Base):
+    """Описывает модель  продукта и его бизнес-логику"""
+
     __tablename__ = "products"
 
     id = Column(Integer, primary_key=True)
@@ -13,18 +15,18 @@ class Product(Base):
     stock_quantity = Column(Integer, nullable=False)
 
     def change_product_cost(self, new_product_cost: int) -> None:
-        """Изменение стоимости продукта"""
+        """Изменяет стоимость продукта на новое значение"""
         self.product_cost = new_product_cost
 
     def is_available(self, expected_quantity: int) -> bool:
-        """Проверка нужного количества товара на складе"""
+        """Проверяет наличие запрашиваемого количества товара на складе"""
         if expected_quantity <= self.stock_quantity and expected_quantity > 0:
             return True
         else:
             return False
 
     def decrease_stock(self, quantity: int) -> bool:
-        """Уменьшение количества товара на складе"""
+        """Уменьшает количество доступного товара на складе при валидном значении"""
         if quantity <= 0:
             return False
 
@@ -35,7 +37,7 @@ class Product(Base):
             return False
 
     def increase_stock(self, quantity: int) -> bool:
-        """Увеличение количества товара на складе"""
+        """Увеличивает количество доступного товара на складе"""
         if quantity > 0:
             self.stock_quantity = self.stock_quantity + quantity
             return True

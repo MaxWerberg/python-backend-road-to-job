@@ -8,7 +8,6 @@ class ProductService:
 
     def create_product(
         self,
-        id: int,
         sku: int,
         product_name: str,
         product_cost: int,
@@ -20,7 +19,6 @@ class ProductService:
             raise ValueError("Товар с таким SKU уже существует")
 
         product = Product(
-            id=id,
             sku=sku,
             product_name=product_name,
             product_cost=product_cost,
