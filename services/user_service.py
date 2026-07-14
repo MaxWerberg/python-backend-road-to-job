@@ -23,7 +23,7 @@ class UserService:
         """Регистрация пользователя"""
         existing_user = self.repository.get_by_email(email)
         if existing_user:
-            raise ValueError("Пользователь существует")
+            raise ValueError(f"Пользователь c почтой {existing_user.email} существует")
 
         password_hash = self._hash_password(raw_password)
         user = User(id=id, username=username, email=email, password_hash=password_hash)
@@ -34,7 +34,7 @@ class UserService:
         """Изменение пароля пользователя"""
         user = self.repository.get_by_id(user_id)
         if not user:
-            raise ValueError("Пользователь не найден")
+            raise ValueError(f"Пользователь c ID {user_id} не найден")
 
         if not self._verify_password(old_pass, user.password_hash):
             raise ValueError("Неверный старый пароль")
@@ -48,5 +48,5 @@ class UserService:
         """Удаление пользователя"""
         is_delete = self.repository.delete(user_id)
         if not is_delete:
-            raise ValueError("Пользователь не найден")
+            raise ValueError(f"Пользователь c ID {user_id} не найден")
         return is_delete
