@@ -14,6 +14,7 @@ class Product:
         self.stock_quantity = stock_quantity
 
     def change_product_cost(self, new_product_cost: int) -> None:
+        """Изменение стоимости продукта"""
         self.product_cost = new_product_cost
 
     def is_available(self, expected_quantity: int) -> bool:
