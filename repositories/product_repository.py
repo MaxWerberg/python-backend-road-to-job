@@ -1,41 +1,38 @@
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
 from models.product import Product
 
 
 class ProductRepository:
-    def __init__(self):
-        self.db = []
+    def __init__(self, db: Session):
+        self.db = db
 
     def create(self, product: Product) -> Product:
         """Создает продукт"""
-        self.db.append(product)
+        self.db.add(product)
+        self.db.flush()
         return product
 
     def get_by_id(self, product_id: int) -> Product | None:
         """Поиск продукта по ID"""
-        for product in self.db:
-            if product.id == product_id:
-                return product
-        return None
+        return self.db.get(Product, product_id)
 
     def get_by_sku(self, product_sku: int) -> Product | None:
         """Поиск продукта по SKU"""
-        for product in self.db:
-            if product.sku == product_sku:
-                return product
-        return None
+        query = select(Product).where(Product.sku == product_sku)
+        return self.db.execute(query).scalar_one_or_none()
 
     def update(self, updated_product: Product) -> Product | None:
         """Сохраняет изменения продукта в базу данных"""
-        for index, existing_product in enumerate(self.db):
-            if existing_product.id == updated_product.id:
-                self.db[index] = updated_product
-                return updated_product
-        return None
+        self.db.flush()
+        return updated_product
 
     def delete(self, product_id: int) -> bool:
         """Удаляет продукт по ID"""
-        for product in self.db:
-            if product.id == product_id:
-                self.db.remove(product)
-                return True
-        return False
+        product = self.db.get(Product, product_id)
+        if not product:
+            return False
+        self.db.delete(product)
+        self.db.flush()
+        return True

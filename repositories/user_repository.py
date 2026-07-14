@@ -1,41 +1,39 @@
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
 from models.user import User
 
 
 class UserRepository:
-    def __init__(self):
-        self.db = []
+    def __init__(self, db: Session):
+        self.db = db
 
     def create(self, user: User) -> User:
         """Создает юзера"""
-        self.db.append(user)
+        self.db.add(user)
+        self.db.flush()
         return user
 
     def get_by_id(self, user_id: int) -> User | None:
         """Поиск юзера по ID"""
-        for user in self.db:
-            if user.id == user_id:
-                return user
-        return None
+        return self.db.get(User, user_id)
 
     def get_by_email(self, email: str) -> User | None:
         """Поиск юзера по EMAIL"""
-        for user in self.db:
-            if user.email == email:
-                return user
-        return None
+        query = select(User).where(User.email == email)
+        return self.db.execute(query).scalar_one_or_none()
 
     def update(self, updated_user: User) -> User | None:
         """Сохраняет изменения юзера в базу данных"""
-        for index, existing_user in enumerate(self.db):
-            if existing_user.id == updated_user.id:
-                self.db[index] = updated_user
-                return updated_user
-        return None
+        self.db.flush()
+        return updated_user
 
     def delete(self, user_id: int) -> bool:
         """Удаляет юзера по ID"""
-        for user in self.db:
-            if user.id == user_id:
-                self.db.remove(user)
-                return True
-        return False
+        user = self.db.get(User, user_id)
+        if not user:
+            return False
+
+        self.db.delete(user)
+        self.db.flush()
+        return True
