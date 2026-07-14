@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-engine = create_engine("postgresql://postgres:cdbywjdst57gbhj;rb@localhost:5432/shop")
+engine = create_engine("postgresql://postgres:rambler@localhost:5432/shop")
 
 SessionLocal = sessionmaker(bind=engine, autoflush=False)
 
