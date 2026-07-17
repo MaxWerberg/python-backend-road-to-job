@@ -30,11 +30,17 @@ class UserService:
         created_user = self.repository.create(user)
         return created_user
 
-    def change_password(self, user_id: int, old_pass: str, new_pass: str) -> User:
-        """Изменяет текущий пароль пользователя на новый"""
+    def get_user(self, user_id: int) -> User:
+        """Ищет пользователя по ID"""
         user = self.repository.get_by_id(user_id)
+
         if not user:
             raise ValueError(f"Пользователь c ID {user_id} не найден")
+        return user
+
+    def change_password(self, user_id: int, old_pass: str, new_pass: str) -> User:
+        """Изменяет текущий пароль пользователя на новый"""
+        user = self.get_user(user_id)
 
         if not self._verify_password(old_pass, user.password_hash):
             raise ValueError("Неверный старый пароль")
