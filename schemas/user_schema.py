@@ -2,7 +2,7 @@ from pydantic import BaseModel, EmailStr
 
 
 class UserRegisterSchema(BaseModel):
-    """Схема регистрации юзера"""
+    """Схема регистрации пользователя"""
 
     username: str
     email: EmailStr
@@ -10,7 +10,7 @@ class UserRegisterSchema(BaseModel):
 
 
 class UserResponseSchema(BaseModel):
-    """Схема ответа юзеру"""
+    """Схема ответа пользователю"""
 
     id: int
     username: str

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from dependencies.service_dependencies import get_user_service as serv_user_dep
+from schemas.auth_schema import LoginSchema, TokenSchema
 from schemas.user_schema import UserRegisterSchema, UserResponseSchema
 from services.user_service import UserService
 
@@ -28,3 +29,17 @@ def register_user(
         )
     except ValueError as error:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(error))
+
+
+@router.post("/login", response_model=TokenSchema)
+def login_user(
+    user_data: LoginSchema, user_service: UserService = Depends(serv_user_dep)
+):
+
+    try:
+        access_token = user_service.login_user(
+            email=user_data.email, password=user_data.password
+        )
+        return {"access_token": access_token, "token_type": "bearer"}
+    except ValueError as error:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(error))

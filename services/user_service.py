@@ -2,13 +2,15 @@ import bcrypt
 
 from models.user import User
 from repositories.user_repository import UserRepository
+from services.jwt_service import JWTService
 
 
 class UserService:
     """Управляет бизнес-логикой работы с пользователями"""
 
-    def __init__(self, repository: UserRepository):
+    def __init__(self, repository: UserRepository, jwt_service: JWTService):
         self.repository = repository
+        self.jwt_service = jwt_service
 
     def _hash_password(self, password: str) -> bytes:
         """Хэширует строку пароля с использованием соли"""
@@ -49,6 +51,17 @@ class UserService:
         user.update_password_hash(new_hash)
 
         return self.repository.update(user)
+
+    def login_user(self, email: str, password: str) -> str:
+        """Авторизует пользователя и возвращает Access Token"""
+        user = self.repository.get_by_email(email)
+        if not user:
+            raise ValueError("Неверный email или пароль")
+
+        if not self._verify_password(password, user.password_hash):
+            raise ValueError("Неверный email или пароль")
+
+        return self.jwt_service.create_access_token(user.id)
 
     def delete_user(self, user_id: int) -> bool:
         """Удаляет пользователя по его идентификатору"""
