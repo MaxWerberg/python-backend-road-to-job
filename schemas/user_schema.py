@@ -15,3 +15,10 @@ class UserResponseSchema(BaseModel):
     id: int
     username: str
     email: EmailStr
+
+
+class UserPasswordChangeSchema(BaseModel):
+    """Схема изменения пароля пользователя"""
+
+    old_pass: str
+    new_pass: str

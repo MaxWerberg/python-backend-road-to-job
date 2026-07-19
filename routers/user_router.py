@@ -1,19 +1,39 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
+from dependencies.auth_dependencies import get_current_user as get_current_user
 from dependencies.service_dependencies import get_user_service as serv_user_dep
+from models.user import User
 from schemas.auth_schema import LoginSchema, TokenSchema
-from schemas.user_schema import UserRegisterSchema, UserResponseSchema
+from schemas.user_schema import (
+    UserPasswordChangeSchema,
+    UserRegisterSchema,
+    UserResponseSchema,
+)
 from services.user_service import UserService
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
-@router.get("/{user_id}", response_model=UserResponseSchema)
-def get_user(user_id: int, user_service: UserService = Depends(serv_user_dep)):
-    try:
-        return user_service.get_user(user_id)
-    except ValueError as error:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(error))
+@router.get("/my_account", response_model=UserResponseSchema)
+def get_current_user_info(
+    current_user: User = Depends(get_current_user),
+):
+    return current_user
+
+
+@router.patch("/my_account/password")
+def refresh_password_user(
+    user_data: UserPasswordChangeSchema,
+    user_service: UserService = Depends(serv_user_dep),
+    current_user: User = Depends(get_current_user),
+):
+
+    user_service.change_password(
+        user_id=current_user.id,
+        old_pass=user_data.old_pass,
+        new_pass=user_data.new_pass,
+    )
+    return {"message": "Пароль успешно изменён"}
 
 
 @router.post("/register", response_model=UserResponseSchema)
