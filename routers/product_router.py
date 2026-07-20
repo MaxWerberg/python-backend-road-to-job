@@ -1,16 +1,36 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from dependencies.service_dependencies import get_product_service as serv_dep
-from schemas.product_schema import ProductRegisterSchema, ProductResponseSchema
+from dependencies.service_dependencies import get_product_service as serv_prod_dep
+from schemas.product_schema import (
+    ProductChangeCostSchema,
+    ProductRegisterSchema,
+    ProductResponseSchema,
+    ProductSearchSchema,
+)
 from services.product_service import ProductService
 
 router = APIRouter(prefix="/products", tags=["Product"])
 
 
+@router.get("/product", response_model=ProductResponseSchema)
+def get_product_info(
+    product_search: ProductSearchSchema,
+    product_service: ProductService = Depends(serv_prod_dep),
+):
+    try:
+        if product_search.id is not None:
+            return product_service.get_product_by_id(product_id=product_search.id)
+
+        if product_search.sku is not None:
+            return product_service.get_product_by_sku(product_sku=product_search.sku)
+    except ValueError as error:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(error))
+
+
 @router.post("/register", response_model=ProductResponseSchema)
 def register_product(
     product_data: ProductRegisterSchema,
-    product_service: ProductService = Depends(serv_dep),
+    product_service: ProductService = Depends(serv_prod_dep),
 ):
 
     try:
@@ -22,3 +42,24 @@ def register_product(
         )
     except ValueError as error:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(error))
+
+
+@router.patch("/product/cost", response_model=ProductResponseSchema)
+def change_product_cost(
+    product_search: ProductChangeCostSchema,
+    product_service: ProductService = Depends(serv_prod_dep),
+):
+
+    try:
+        product_id = product_search.id
+
+        if product_id is None:
+            product = product_service.get_product_by_sku(product_sku=product_search.sku)
+            product_id = product.id
+
+        return product_service.change_cost(
+            product_id=product_id,
+            new_cost=product_search.new_cost,
+        )
+    except ValueError as error:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(error))

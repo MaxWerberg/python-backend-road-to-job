@@ -27,16 +27,23 @@ class ProductService:
         created_product = self.repository.create(product)
         return created_product
 
-    def get_product(self, product_id: int) -> Product:
+    def get_product_by_id(self, product_id: int) -> Product:
         """Поиск продукта по ID"""
         product = self.repository.get_by_id(product_id)
         if not product:
             raise ValueError("Продукт не найден")
         return product
 
+    def get_product_by_sku(self, product_sku: int) -> Product:
+        """Поиск продукта по SKU"""
+        product = self.repository.get_by_sku(product_sku)
+        if not product:
+            raise ValueError("Продукт не найден")
+        return product
+
     def change_cost(self, product_id: int, new_cost: int) -> Product:
         """Изменяет стоимость продукта"""
-        product = self.get_product(product_id)
+        product = self.get_product_by_id(product_id)
         product.change_product_cost(new_cost)
         return self.repository.update(product)
 
