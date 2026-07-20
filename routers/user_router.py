@@ -27,13 +27,29 @@ def refresh_password_user(
     user_service: UserService = Depends(serv_user_dep),
     current_user: User = Depends(get_current_user),
 ):
+    try:
+        user_service.change_password(
+            user_id=current_user.id,
+            old_pass=user_data.old_pass,
+            new_pass=user_data.new_pass,
+        )
+        return {"message": "Пароль успешно изменён"}
+    except ValueError as error:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(error))
 
-    user_service.change_password(
-        user_id=current_user.id,
-        old_pass=user_data.old_pass,
-        new_pass=user_data.new_pass,
-    )
-    return {"message": "Пароль успешно изменён"}
+
+@router.delete("/my_account")
+def delete_user(
+    user_service: UserService = Depends(serv_user_dep),
+    current_user: User = Depends(get_current_user),
+):
+    try:
+        user_service.delete_user(
+            user_id=current_user.id,
+        )
+        return {"message": "Аккаунт удален"}
+    except ValueError as error:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(error))
 
 
 @router.post("/register", response_model=UserResponseSchema)
