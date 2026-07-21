@@ -35,15 +35,19 @@ class ProductSearchSchema(BaseModel):
         return self
 
 
-class ProductChangeCostSchema(BaseModel):
+class ProductChangeCostSchema(ProductSearchSchema):
     """Схема изменения стоимости продукта"""
 
-    id: Optional[int] = None
-    sku: Optional[int] = None
     new_cost: int
 
-    @model_validator(mode="after")
-    def check_search(self):
-        if (self.id is None) == (self.sku is None):
-            raise ValueError("Укажите 'ID', либо 'SKU'")
-        return self
+
+class ProductReceiveOrShipSchema(ProductSearchSchema):
+    """Схема изменения остатка продукта"""
+
+    quantity: int
+
+
+class ProductDeleteSchema(ProductSearchSchema):
+    """Схема удаления продукта"""
+
+    pass

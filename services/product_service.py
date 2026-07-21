@@ -17,6 +17,8 @@ class ProductService:
         existing_product = self.repository.get_by_sku(sku)
         if existing_product:
             raise ValueError("Товар с таким SKU уже существует")
+        if product_cost < 0:
+            raise ValueError("Нельзя добавить продукт с отрицательной стоимостью")
 
         product = Product(
             sku=sku,
@@ -49,7 +51,7 @@ class ProductService:
 
     def receive_stock(self, product_id: int, quantity: int) -> Product:
         """Пополнение продукта на склад"""
-        product = self.get_product(product_id)
+        product = self.get_product_by_id(product_id)
 
         if not product.increase_stock(quantity):
             raise ValueError("Количество для пополнения должно быть положительным")
@@ -58,7 +60,7 @@ class ProductService:
 
     def ship_stock(self, product_id: int, quantity: int) -> Product:
         """Отбытие продукта со склада"""
-        product = self.get_product(product_id)
+        product = self.get_product_by_id(product_id)
 
         if not product.is_available(quantity):
             raise ValueError("Недостаточно товара на складе")
@@ -67,3 +69,10 @@ class ProductService:
             raise ValueError("Некорректное количество для отгрузки")
 
         return self.repository.update(product)
+
+    def delete_product(self, product_id: int):
+        is_delete = self.repository.delete(product_id)
+
+        if not is_delete:
+            raise ValueError(f"Продукт c ID {product_id} не найден")
+        return is_delete

@@ -1,8 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 
 from dependencies.service_dependencies import get_product_service as serv_prod_dep
 from schemas.product_schema import (
     ProductChangeCostSchema,
+    ProductDeleteSchema,
+    ProductReceiveOrShipSchema,
     ProductRegisterSchema,
     ProductResponseSchema,
     ProductSearchSchema,
@@ -63,3 +65,65 @@ def change_product_cost(
         )
     except ValueError as error:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(error))
+
+
+@router.patch("/product/receive_stock", response_model=ProductResponseSchema)
+def receive_stock_product(
+    product_search: ProductReceiveOrShipSchema,
+    product_service: ProductService = Depends(serv_prod_dep),
+):
+
+    try:
+        product_id = product_search.id
+
+        if product_id is None:
+            product = product_service.get_product_by_sku(product_sku=product_search.sku)
+            product_id = product.id
+
+        return product_service.receive_stock(
+            product_id=product_id, quantity=product_search.quantity
+        )
+    except ValueError as error:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(error))
+
+
+@router.patch("/product/ship_stock", response_model=ProductResponseSchema)
+def ship_stock_product(
+    product_search: ProductReceiveOrShipSchema,
+    product_service: ProductService = Depends(serv_prod_dep),
+):
+
+    try:
+        product_id = product_search.id
+
+        if product_id is None:
+            product = product_service.get_product_by_sku(product_sku=product_search.sku)
+            product_id = product.id
+
+        return product_service.ship_stock(
+            product_id=product_id, quantity=product_search.quantity
+        )
+    except ValueError as error:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(error))
+
+
+@router.delete("/product")
+def delete_product(
+    product_search: ProductDeleteSchema,
+    product_service: ProductService = Depends(serv_prod_dep),
+):
+
+    try:
+        product_id = product_search.id
+        if product_id is None:
+            product = product_service.get_product_by_sku(product_sku=product_search.sku)
+            product_id = product.id
+
+        product_service.delete_product(product_id=product_id)
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+    except ValueError as error:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(error),
+        )
