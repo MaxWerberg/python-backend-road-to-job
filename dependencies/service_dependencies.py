@@ -4,9 +4,15 @@ from sqlalchemy.orm import Session
 from database.database import get_db
 from repositories.product_repository import ProductRepository
 from repositories.user_repository import UserRepository
+from services.admin_service import AdminService
 from services.jwt_service import JWTService
 from services.product_service import ProductService
 from services.user_service import UserService
+
+
+def get_admine_service(db: Session = Depends(get_db)) -> AdminService:
+    user_repository = UserRepository(db)
+    return AdminService(user_repository)
 
 
 def get_user_service(db: Session = Depends(get_db)) -> UserService:

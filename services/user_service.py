@@ -28,7 +28,9 @@ class UserService:
             raise ValueError(f"Пользователь c почтой {existing_user.email} существует")
 
         password_hash = self._hash_password(raw_password)
-        user = User(username=username, email=email, password_hash=password_hash)
+        user = User(
+            username=username, email=email, password_hash=password_hash, role="user"
+        )
         created_user = self.repository.create(user)
         return created_user
 
