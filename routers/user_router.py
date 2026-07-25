@@ -1,6 +1,8 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from dependencies.auth_dependencies import get_current_user as get_current_user
+from dependencies.auth_dependencies import get_current_user
 from dependencies.service_dependencies import get_user_service as serv_user_dep
 from models.user import User
 from schemas.auth_schema import LoginSchema, TokenSchema
@@ -12,11 +14,13 @@ from schemas.user_schema import (
 from services.user_service import UserService
 
 router = APIRouter(prefix="/users", tags=["Users"])
+UserServiceDep = Annotated[UserService, Depends(serv_user_dep)]
+CurrentUserDep = Annotated[User, Depends(get_current_user)]
 
 
 @router.get("/my_account", response_model=UserResponseSchema)
 def get_current_user_info(
-    current_user: User = Depends(get_current_user),
+    current_user: CurrentUserDep,
 ):
     return current_user
 
@@ -24,8 +28,8 @@ def get_current_user_info(
 @router.patch("/my_account/password")
 def refresh_password_user(
     user_data: UserPasswordChangeSchema,
-    user_service: UserService = Depends(serv_user_dep),
-    current_user: User = Depends(get_current_user),
+    user_service: UserServiceDep,
+    current_user: CurrentUserDep,
 ):
     try:
         user_service.change_password(
@@ -40,8 +44,8 @@ def refresh_password_user(
 
 @router.delete("/my_account")
 def delete_user(
-    user_service: UserService = Depends(serv_user_dep),
-    current_user: User = Depends(get_current_user),
+    user_service: UserServiceDep,
+    current_user: CurrentUserDep,
 ):
     try:
         user_service.delete_user(
@@ -53,9 +57,7 @@ def delete_user(
 
 
 @router.post("/register", response_model=UserResponseSchema)
-def register_user(
-    user_data: UserRegisterSchema, user_service: UserService = Depends(serv_user_dep)
-):
+def register_user(user_data: UserRegisterSchema, user_service: UserServiceDep):
 
     try:
         return user_service.registration(
@@ -68,9 +70,7 @@ def register_user(
 
 
 @router.post("/login", response_model=TokenSchema)
-def login_user(
-    user_data: LoginSchema, user_service: UserService = Depends(serv_user_dep)
-):
+def login_user(user_data: LoginSchema, user_service: UserServiceDep):
 
     try:
         access_token = user_service.login_user(

@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
@@ -9,18 +11,20 @@ from services.jwt_service import JWTService
 from services.product_service import ProductService
 from services.user_service import UserService
 
+db_session = Annotated[Session, Depends(get_db)]
 
-def get_admine_service(db: Session = Depends(get_db)) -> AdminService:
+
+def get_admin_service(db: db_session) -> AdminService:
     user_repository = UserRepository(db)
     return AdminService(user_repository)
 
 
-def get_user_service(db: Session = Depends(get_db)) -> UserService:
+def get_user_service(db: db_session) -> UserService:
     jwt_service = JWTService()
     user_repository = UserRepository(db)
     return UserService(user_repository, jwt_service)
 
 
-def get_product_service(db: Session = Depends(get_db)) -> ProductService:
+def get_product_service(db: db_session) -> ProductService:
     repo = ProductRepository(db)
     return ProductService(repo)

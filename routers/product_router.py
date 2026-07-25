@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, HTTPException, Response, status
 
-from dependencies.service_dependencies import get_product_service as serv_prod_dep
+from dependencies.type_dependencies import CurrentAdminDep, ProductServiceDep
 from schemas.product_schema import (
     ProductChangeCostSchema,
     ProductDeleteSchema,
@@ -9,7 +9,6 @@ from schemas.product_schema import (
     ProductResponseSchema,
     ProductSearchSchema,
 )
-from services.product_service import ProductService
 
 router = APIRouter(prefix="/products", tags=["Product"])
 
@@ -17,7 +16,7 @@ router = APIRouter(prefix="/products", tags=["Product"])
 @router.get("/product", response_model=ProductResponseSchema)
 def get_product_info(
     product_search: ProductSearchSchema,
-    product_service: ProductService = Depends(serv_prod_dep),
+    product_service: ProductServiceDep,
 ):
     try:
         if product_search.id is not None:
@@ -32,7 +31,8 @@ def get_product_info(
 @router.post("/register", response_model=ProductResponseSchema)
 def register_product(
     product_data: ProductRegisterSchema,
-    product_service: ProductService = Depends(serv_prod_dep),
+    product_service: ProductServiceDep,
+    current_admin: CurrentAdminDep,
 ):
 
     try:
@@ -49,7 +49,7 @@ def register_product(
 @router.patch("/product/cost", response_model=ProductResponseSchema)
 def change_product_cost(
     product_search: ProductChangeCostSchema,
-    product_service: ProductService = Depends(serv_prod_dep),
+    product_service: ProductServiceDep,
 ):
 
     try:
@@ -70,7 +70,7 @@ def change_product_cost(
 @router.patch("/product/receive_stock", response_model=ProductResponseSchema)
 def receive_stock_product(
     product_search: ProductReceiveOrShipSchema,
-    product_service: ProductService = Depends(serv_prod_dep),
+    product_service: ProductServiceDep,
 ):
 
     try:
@@ -90,7 +90,7 @@ def receive_stock_product(
 @router.patch("/product/ship_stock", response_model=ProductResponseSchema)
 def ship_stock_product(
     product_search: ProductReceiveOrShipSchema,
-    product_service: ProductService = Depends(serv_prod_dep),
+    product_service: ProductServiceDep,
 ):
 
     try:
@@ -110,7 +110,7 @@ def ship_stock_product(
 @router.delete("/product")
 def delete_product(
     product_search: ProductDeleteSchema,
-    product_service: ProductService = Depends(serv_prod_dep),
+    product_service: ProductServiceDep,
 ):
 
     try:
