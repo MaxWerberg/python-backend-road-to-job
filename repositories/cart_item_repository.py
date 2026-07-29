@@ -18,7 +18,7 @@ class CartItemRepository:
         cart_query = select(CartItem).where(
             CartItem.cart_id == cart_id, CartItem.product_id == product_id
         )
-        return self.db.execute(cart_query).scalar_or_none()
+        return self.db.execute(cart_query).scalar_one_or_none()
 
     def update(self, cart_item: CartItem) -> CartItem:
         """Обновляет элемент в корзине"""
