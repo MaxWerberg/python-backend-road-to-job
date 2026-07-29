@@ -4,6 +4,8 @@ from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 from database.database import Base
+from models.cart import Cart  # noqa: F401
+from models.cart_item import CartItem  # noqa: F401
 from models.product import Product  # noqa: F401
 from models.user import User  # noqa: F401
 
