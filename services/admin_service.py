@@ -1,3 +1,8 @@
+from exceptions.exceptions import (
+    RoleAlreadyAssignedError,
+    UserNotFoundError,
+)
+from models.user import User
 from repositories.user_repository import UserRepository
 
 
@@ -7,26 +12,21 @@ class AdminService:
     def __init__(self, repository: UserRepository):
         self.repository = repository
 
-    def give_role_admin(self, user_id: int):
-        """Дает пользователю роль admin"""
+    def get_user(self, user_id: int) -> User:
+        """Получение пользователя"""
+
         user = self.repository.get_by_id(user_id)
         if not user:
-            raise ValueError("Пользователь не найден")
+            raise UserNotFoundError("Пользователь не найден")
+        return user
 
-        if user.role != "admin":
-            user.role = "admin"
-            return self.repository.update(user)
+    def give_role(self, user_id: int, role: str) -> None:
+        """Меняет пользователю роль"""
+
+        user = self.get_user(user_id)
+        if user.role == role:
+            raise RoleAlreadyAssignedError(f"Пользователь уже является {role}")
         else:
-            raise ValueError("Пользователь уже является 'admin'")
+            user.role = role
 
-    def give_role_user(self, user_id: int):
-        """Дает пользователю роль user"""
-        user = self.repository.get_by_id(user_id)
-        if not user:
-            raise ValueError("Пользователь не найден")
-
-        if user.role != "user":
-            user.role = "user"
-            return self.repository.update(user)
-        else:
-            raise ValueError("Пользователь уже является 'user'")
+        self.repository.update(user)

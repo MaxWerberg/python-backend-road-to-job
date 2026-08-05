@@ -1,3 +1,10 @@
+from exceptions.exceptions import (
+    InvalidPriceError,
+    InvalidQuantityError,
+    OutOfStockError,
+    ProductAlreadyExistsError,
+    ProductNotFoundError,
+)
 from models.product import Product
 from repositories.product_repository import ProductRepository
 
@@ -16,9 +23,11 @@ class ProductService:
         """Создает продукт"""
         existing_product = self.repository.get_by_sku(sku)
         if existing_product:
-            raise ValueError("Товар с таким SKU уже существует")
+            raise ProductAlreadyExistsError("Товар с таким SKU уже существует")
         if product_cost < 0:
-            raise ValueError("Нельзя добавить продукт с отрицательной стоимостью")
+            raise InvalidPriceError(
+                "Нельзя добавить продукт с отрицательной стоимостью"
+            )
 
         product = Product(
             sku=sku,
@@ -33,18 +42,21 @@ class ProductService:
         """Поиск продукта по ID"""
         product = self.repository.get_by_id(product_id)
         if not product:
-            raise ValueError("Продукт не найден")
+            raise ProductNotFoundError(f"Продукт c ID {product_id} не найден")
         return product
 
     def get_product_by_sku(self, product_sku: int) -> Product:
         """Поиск продукта по SKU"""
         product = self.repository.get_by_sku(product_sku)
         if not product:
-            raise ValueError("Продукт не найден")
+            raise ProductNotFoundError(f"Продукт c SKU {product_sku} не найден")
         return product
 
     def change_cost(self, product_id: int, new_cost: int) -> Product:
         """Изменяет стоимость продукта"""
+        if new_cost < 0:
+            raise InvalidPriceError("Стоимость продукта не может быть отрицательной")
+
         product = self.get_product_by_id(product_id)
         product.change_product_cost(new_cost)
         return self.repository.update(product)
@@ -54,7 +66,9 @@ class ProductService:
         product = self.get_product_by_id(product_id)
 
         if not product.increase_stock(quantity):
-            raise ValueError("Количество для пополнения должно быть положительным")
+            raise InvalidQuantityError(
+                "Количество для пополнения должно быть положительным"
+            )
 
         return self.repository.update(product)
 
@@ -63,10 +77,10 @@ class ProductService:
         product = self.get_product_by_id(product_id)
 
         if not product.is_available(quantity):
-            raise ValueError("Недостаточно товара на складе")
+            raise OutOfStockError("Недостаточно товара на складе")
 
         if not product.decrease_stock(quantity):
-            raise ValueError("Некорректное количество для отгрузки")
+            raise InvalidQuantityError("Некорректное количество для отгрузки")
 
         return self.repository.update(product)
 
@@ -74,5 +88,5 @@ class ProductService:
         is_delete = self.repository.delete(product_id)
 
         if not is_delete:
-            raise ValueError(f"Продукт c ID {product_id} не найден")
+            raise ProductNotFoundError(f"Продукт c ID {product_id} не найден")
         return is_delete

@@ -1,9 +1,9 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
-from fastapi import HTTPException, status
 from jose import exceptions, jwt
 
 from config.settings import settings
+from exceptions.exceptions import InvalidTokenError, TokenExpiredError
 
 
 class JWTService:
@@ -12,7 +12,7 @@ class JWTService:
 
         payload = {
             "sub": str(user_id),
-            "exp": datetime.now()
+            "exp": datetime.now(timezone.utc)
             + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
         }
 
@@ -29,12 +29,9 @@ class JWTService:
             )
 
         except exceptions.ExpiredSignatureError:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED, detail="Время токена истекло"
-            )
-        except exceptions.JWEError:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED, detail="Неверный токен"
-            )
+            raise TokenExpiredError("Срок действия токена истек")
+
+        except exceptions.JWTError:
+            raise InvalidTokenError("Предоставлен недействительный токен")
 
         return check_token

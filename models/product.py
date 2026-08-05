@@ -20,10 +20,8 @@ class Product(Base):
 
     def is_available(self, expected_quantity: int) -> bool:
         """Проверяет наличие запрашиваемого количества товара на складе"""
-        if expected_quantity <= self.stock_quantity and expected_quantity > 0:
-            return True
-        else:
-            return False
+        return expected_quantity <= self.stock_quantity and expected_quantity > 0:
+         
 
     def decrease_stock(self, quantity: int) -> bool:
         """Уменьшает количество доступного товара на складе при валидном значении"""
