@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import DECIMAL, Column, Integer, String
 
 from database.database import Base
 
@@ -11,7 +11,7 @@ class Product(Base):
     id = Column(Integer, primary_key=True)
     sku = Column(Integer, unique=True, nullable=False, index=True)
     product_name = Column(String, nullable=False)
-    product_cost = Column(Integer, nullable=False)
+    product_cost = Column(DECIMAL(precision=10, scale=2), nullable=False)
     stock_quantity = Column(Integer, nullable=False)
 
     def change_product_cost(self, new_product_cost: int) -> None:
@@ -20,8 +20,7 @@ class Product(Base):
 
     def is_available(self, expected_quantity: int) -> bool:
         """Проверяет наличие запрашиваемого количества товара на складе"""
-        return expected_quantity <= self.stock_quantity and expected_quantity > 0:
-         
+        return expected_quantity <= self.stock_quantity and expected_quantity > 0
 
     def decrease_stock(self, quantity: int) -> bool:
         """Уменьшает количество доступного товара на складе при валидном значении"""

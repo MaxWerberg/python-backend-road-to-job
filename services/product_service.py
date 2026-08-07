@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from exceptions.exceptions import (
     InvalidPriceError,
     InvalidQuantityError,
@@ -17,7 +19,7 @@ class ProductService:
         self,
         sku: int,
         product_name: str,
-        product_cost: int,
+        product_cost: Decimal,
         stock_quantity: int,
     ) -> Product:
         """Создает продукт"""
