@@ -1,6 +1,7 @@
-from fastapi import APIRouter, HTTPException, Response, status
+from fastapi import APIRouter, Depends, Response, status
 
-from dependencies.type_dependencies import CurrentAdminDep, ProductServiceDep
+from dependencies.auth_dependencies import require_admin
+from dependencies.type_dependencies import ProductServiceDep
 from schemas.product_schema import (
     ProductChangeCostSchema,
     ProductDeleteSchema,
@@ -10,120 +11,100 @@ from schemas.product_schema import (
     ProductSearchSchema,
 )
 
-router = APIRouter(prefix="/products", tags=["Product"])
+product_router = APIRouter(prefix="/products", tags=["Product"])
+admin_product_router = APIRouter(
+    prefix="/products", tags=["Product"], dependencies=[Depends(require_admin)]
+)
 
 
-@router.get("/product", response_model=ProductResponseSchema)
+@product_router.get("/product", response_model=ProductResponseSchema)
 def get_product_info(
     product_search: ProductSearchSchema,
     product_service: ProductServiceDep,
 ):
-    try:
-        if product_search.id is not None:
-            return product_service.get_product_by_id(product_id=product_search.id)
-
-        if product_search.sku is not None:
-            return product_service.get_product_by_sku(product_sku=product_search.sku)
-    except ValueError as error:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(error))
+    return product_service.find_product(
+        product_id=product_search.id, product_sku=product_search.sku
+    )
 
 
-@router.post("/register", response_model=ProductResponseSchema)
+@admin_product_router.post("/register", response_model=ProductResponseSchema)
 def register_product(
     product_data: ProductRegisterSchema,
     product_service: ProductServiceDep,
-    current_admin: CurrentAdminDep,
 ):
 
-    try:
-        return product_service.create_product(
-            sku=product_data.sku,
-            product_name=product_data.product_name,
-            product_cost=product_data.product_cost,
-            stock_quantity=product_data.stock_quantity,
-        )
-    except ValueError as error:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(error))
+    return product_service.create_product(
+        sku=product_data.sku,
+        product_name=product_data.product_name,
+        product_cost=product_data.product_cost,
+        stock_quantity=product_data.stock_quantity,
+    )
 
 
-@router.patch("/product/cost", response_model=ProductResponseSchema)
+@admin_product_router.patch("/product/cost", response_model=ProductResponseSchema)
 def change_product_cost(
     product_search: ProductChangeCostSchema,
     product_service: ProductServiceDep,
 ):
 
-    try:
-        product_id = product_search.id
+    product_id = product_search.id
 
-        if product_id is None:
-            product = product_service.get_product_by_sku(product_sku=product_search.sku)
-            product_id = product.id
+    if product_id is None:
+        product = product_service.get_product_by_sku(product_sku=product_search.sku)
+        product_id = product.id
 
-        return product_service.change_cost(
-            product_id=product_id,
-            new_cost=product_search.new_cost,
-        )
-    except ValueError as error:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(error))
+    return product_service.change_cost(
+        product_id=product_id,
+        new_cost=product_search.new_cost,
+    )
 
 
-@router.patch("/product/receive_stock", response_model=ProductResponseSchema)
+@admin_product_router.patch(
+    "/product/receive_stock", response_model=ProductResponseSchema
+)
 def receive_stock_product(
     product_search: ProductReceiveOrShipSchema,
     product_service: ProductServiceDep,
 ):
 
-    try:
-        product_id = product_search.id
+    product_id = product_search.id
 
-        if product_id is None:
-            product = product_service.get_product_by_sku(product_sku=product_search.sku)
-            product_id = product.id
+    if product_id is None:
+        product = product_service.get_product_by_sku(product_sku=product_search.sku)
+        product_id = product.id
 
-        return product_service.receive_stock(
-            product_id=product_id, quantity=product_search.quantity
-        )
-    except ValueError as error:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(error))
+    return product_service.receive_stock(
+        product_id=product_id, quantity=product_search.quantity
+    )
 
 
-@router.patch("/product/ship_stock", response_model=ProductResponseSchema)
+@admin_product_router.patch("/product/ship_stock", response_model=ProductResponseSchema)
 def ship_stock_product(
     product_search: ProductReceiveOrShipSchema,
     product_service: ProductServiceDep,
 ):
 
-    try:
-        product_id = product_search.id
+    product_id = product_search.id
 
-        if product_id is None:
-            product = product_service.get_product_by_sku(product_sku=product_search.sku)
-            product_id = product.id
+    if product_id is None:
+        product = product_service.get_product_by_sku(product_sku=product_search.sku)
+        product_id = product.id
 
-        return product_service.ship_stock(
-            product_id=product_id, quantity=product_search.quantity
-        )
-    except ValueError as error:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(error))
+    return product_service.ship_stock(
+        product_id=product_id, quantity=product_search.quantity
+    )
 
 
-@router.delete("/product")
+@admin_product_router.delete("/product")
 def delete_product(
     product_search: ProductDeleteSchema,
     product_service: ProductServiceDep,
 ):
 
-    try:
-        product_id = product_search.id
-        if product_id is None:
-            product = product_service.get_product_by_sku(product_sku=product_search.sku)
-            product_id = product.id
+    product_id = product_search.id
+    if product_id is None:
+        product = product_service.get_product_by_sku(product_sku=product_search.sku)
+        product_id = product.id
 
-        product_service.delete_product(product_id=product_id)
-        return Response(status_code=status.HTTP_204_NO_CONTENT)
-
-    except ValueError as error:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(error),
-        )
+    product_service.delete_product(product_id=product_id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

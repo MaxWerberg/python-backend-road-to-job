@@ -11,10 +11,12 @@ from exceptions.exceptions import (
     ItemNotInCartError,
     NotAnAdminError,
     OutOfStockError,
+    PasswordIdenticalToOldError,
     ProductAlreadyExistsError,
     ProductNotFoundError,
     RoleAlreadyAssignedError,
     TokenExpiredError,
+    UserAlreadyDeletedError,
     UserAlreadyExistsError,
     UserNotFoundError,
 )
@@ -70,6 +72,8 @@ def register_error_handlers(app: FastAPI) -> None:
         )
 
     # 400 Bad Request
+    @app.exception_handler(PasswordIdenticalToOldError)
+    @app.exception_handler(UserAlreadyDeletedError)
     @app.exception_handler(InvalidPriceError)
     @app.exception_handler(InvalidQuantityError)
     @app.exception_handler(OutOfStockError)

@@ -7,16 +7,16 @@ from schemas.cart_schema import (
     CartResponseSchema,
 )
 
-router = APIRouter(prefix="/cart", tags=["Carts"])
+cart_router = APIRouter(prefix="/cart", tags=["Carts"])
 
 
-@router.get(path="", response_model=CartResponseSchema)
+@cart_router.get(path="", response_model=CartResponseSchema)
 def get_user_cart(current_user: CurrentUserDep, cart_item_service: CartItemServiceDep):
 
     return cart_item_service.get_cart(current_user_id=current_user.id)
 
 
-@router.post(path="/items", response_model=CartAddItemSchema)
+@cart_router.post(path="/items", response_model=CartAddItemSchema)
 def add_product_to_cart(
     current_user: CurrentUserDep,
     cart_item_service: CartItemServiceDep,
@@ -30,7 +30,7 @@ def add_product_to_cart(
     )
 
 
-@router.patch(path="/items", response_model=CartAddItemSchema)
+@cart_router.patch(path="/items", response_model=CartAddItemSchema)
 def change_quantity_product(
     current_user: CurrentUserDep,
     cart_item_service: CartItemServiceDep,
@@ -44,7 +44,7 @@ def change_quantity_product(
     )
 
 
-@router.delete(path="/items")
+@cart_router.delete(path="/items")
 def delete_from_cart(
     current_user: CurrentUserDep,
     cart_item_service: CartItemServiceDep,

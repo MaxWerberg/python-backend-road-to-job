@@ -7,6 +7,14 @@ class InvalidCredentialsError(AppException):
     """Вызывается при логине, если неверный email или пароль"""
 
 
+class UserAlreadyDeletedError(AppException):
+    """Вызывается, если профиль уже находится в процессе удаления или уже удален"""
+
+
+class PasswordIdenticalToOldError(AppException):
+    """Вызывается, если новый пароль совпадает со старым паролем"""
+
+
 class InvalidPasswordError(AppException):
     """Вызывается при смене пароля, если старый пароль не совпадает"""
 
