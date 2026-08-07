@@ -1,6 +1,7 @@
 import bcrypt
 
 from exceptions.exceptions import (
+    CartNotFoundError,
     InvalidCredentialsError,
     InvalidPasswordError,
     UserAlreadyExistsError,
@@ -82,7 +83,10 @@ class UserService:
 
     def delete_user(self, user_id: int) -> bool:
         """Удаляет пользователя по его идентификатору"""
-        is_delete = self.repository.delete(user_id)
-        if not is_delete:
+        cart_delete = self.cart_repository.delete(user_id)
+        user_delete = self.repository.delete(user_id)
+        if not cart_delete:
+            raise CartNotFoundError(f"Корзина пользователя c ID {user_id} не найден")
+        if not user_delete:
             raise UserNotFoundError(f"Пользователь c ID {user_id} не найден")
-        return is_delete
+        return user_delete

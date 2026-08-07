@@ -19,7 +19,7 @@ class CartItemService:
         self.cart_item_repository = cart_item_repository
 
     def get_cart(self, current_user_id: int) -> Cart:
-        cart = self.cart_repository.get_by_user_id(current_user_id)
+        cart = self.cart_repository.get_by_current_user_id(current_user_id)
         if not cart:
             raise CartNotFoundError("Корзина пользователя не найдена")
         return cart
@@ -68,3 +68,10 @@ class CartItemService:
             raise ItemNotInCartError("Товар отсутствует в корзине")
 
         self.cart_item_repository.delete(cart.id, product_id)
+
+    def delete_cart(self, user_id: int) -> bool:
+
+        delete_the_cart = self.cart_repository.delete(user_id)
+        if not delete_the_cart:
+            raise CartNotFoundError(f"Корзина пользователя с ID {user_id} не найден")
+        return delete_the_cart
