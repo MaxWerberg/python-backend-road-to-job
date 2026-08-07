@@ -14,7 +14,17 @@ class CartRepository:
         self.db.flush()
         return cart
 
-    def get_by_user_id(self, current_user_id: int) -> Cart:
-        """Поиск корзины по ID"""
+    def get_by_current_user_id(self, current_user_id: int) -> Cart:
+        """Поиск корзины авторизованного пользователя"""
         query = select(Cart).where(Cart.user_id == current_user_id)
         return self.db.execute(query).scalar_one_or_none()
+
+    def delete(self, user_id: int):
+        query = select(Cart).where(Cart.user_id == user_id)
+        result = self.db.execute(query).scalar_one_or_none()
+        if not result:
+            return False
+
+        self.db.delete(result)
+        self.db.flush()
+        return True
