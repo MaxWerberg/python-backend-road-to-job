@@ -40,14 +40,14 @@ class ProductService:
         created_product = self.repository.create(product)
         return created_product
 
-    def get_product_by_id(self, product_id: int) -> Product:
+    def _get_product_by_id(self, product_id: int) -> Product:
         """Поиск продукта по ID"""
         product = self.repository.get_by_id(product_id)
         if not product:
             raise ProductNotFoundError(f"Продукт c ID {product_id} не найден")
         return product
 
-    def get_product_by_sku(self, product_sku: int) -> Product:
+    def _get_product_by_sku(self, product_sku: int) -> Product:
         """Поиск продукта по SKU"""
         product = self.repository.get_by_sku(product_sku)
         if not product:
@@ -62,18 +62,23 @@ class ProductService:
         if product_sku is None:
             return self.get_product_by_id(product_id)
 
-    def change_cost(self, product_id: int, new_cost: int) -> Product:
+    def change_cost(
+        self, product_id: int | None, product_sku: int | None, new_cost: int
+    ) -> Product:
         """Изменяет стоимость продукта"""
         if new_cost < 0:
             raise InvalidPriceError("Стоимость продукта не может быть отрицательной")
 
-        product = self.get_product_by_id(product_id)
+        product = self.find_product(product_id, product_sku)
         product.change_product_cost(new_cost)
         return self.repository.update(product)
 
-    def receive_stock(self, product_id: int, quantity: int) -> Product:
+    def receive_stock(
+        self, product_id: int | None, product_sku: int | None, quantity: int
+    ) -> Product:
         """Пополнение продукта на склад"""
-        product = self.get_product_by_id(product_id)
+
+        product = self.find_product(product_id, product_sku)
 
         if not product.increase_stock(quantity):
             raise InvalidQuantityError(
@@ -82,9 +87,12 @@ class ProductService:
 
         return self.repository.update(product)
 
-    def ship_stock(self, product_id: int, quantity: int) -> Product:
+    def ship_stock(
+        self, product_id: int | None, product_sku: int | None, quantity: int
+    ) -> Product:
         """Отбытие продукта со склада"""
-        product = self.get_product_by_id(product_id)
+
+        product = self.find_product(product_id, product_sku)
 
         if not product.is_available(quantity):
             raise OutOfStockError("Недостаточно товара на складе")

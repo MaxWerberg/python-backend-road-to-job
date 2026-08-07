@@ -1,5 +1,3 @@
-from typing import Optional
-
 from pydantic import BaseModel, model_validator
 
 
@@ -25,8 +23,8 @@ class ProductResponseSchema(BaseModel):
 class ProductSearchSchema(BaseModel):
     """Схема поиска продукта по SKU или по ID"""
 
-    id: Optional[int] = None
-    sku: Optional[int] = None
+    id: int | None = None
+    sku: int | None = None
 
     @model_validator(mode="after")
     def check_search(self):
@@ -47,7 +45,7 @@ class ProductReceiveOrShipSchema(ProductSearchSchema):
     quantity: int
 
 
-class ProductDeleteSchema(ProductSearchSchema):
+class ProductDeleteSchema(BaseModel):
     """Схема удаления продукта"""
 
-    pass
+    id: int

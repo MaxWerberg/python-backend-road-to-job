@@ -46,15 +46,9 @@ def change_product_cost(
     product_search: ProductChangeCostSchema,
     product_service: ProductServiceDep,
 ):
-
-    product_id = product_search.id
-
-    if product_id is None:
-        product = product_service.get_product_by_sku(product_sku=product_search.sku)
-        product_id = product.id
-
     return product_service.change_cost(
-        product_id=product_id,
+        product_id=product_search.id,
+        product_sku=product_search.sku,
         new_cost=product_search.new_cost,
     )
 
@@ -66,15 +60,10 @@ def receive_stock_product(
     product_search: ProductReceiveOrShipSchema,
     product_service: ProductServiceDep,
 ):
-
-    product_id = product_search.id
-
-    if product_id is None:
-        product = product_service.get_product_by_sku(product_sku=product_search.sku)
-        product_id = product.id
-
     return product_service.receive_stock(
-        product_id=product_id, quantity=product_search.quantity
+        product_id=product_search.id,
+        product_sku=product_search.sku,
+        quantity=product_search.quantity,
     )
 
 
@@ -83,28 +72,18 @@ def ship_stock_product(
     product_search: ProductReceiveOrShipSchema,
     product_service: ProductServiceDep,
 ):
-
-    product_id = product_search.id
-
-    if product_id is None:
-        product = product_service.get_product_by_sku(product_sku=product_search.sku)
-        product_id = product.id
-
     return product_service.ship_stock(
-        product_id=product_id, quantity=product_search.quantity
+        product_id=product_search.id,
+        product_sku=product_search.sku,
+        quantity=product_search.quantity,
     )
 
 
 @admin_product_router.delete("/product")
 def delete_product(
-    product_search: ProductDeleteSchema,
+    product: ProductDeleteSchema,
     product_service: ProductServiceDep,
 ):
 
-    product_id = product_search.id
-    if product_id is None:
-        product = product_service.get_product_by_sku(product_sku=product_search.sku)
-        product_id = product.id
-
-    product_service.delete_product(product_id=product_id)
+    product_service.delete_product(product_id=product.id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
