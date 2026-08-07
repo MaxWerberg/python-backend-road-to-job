@@ -54,6 +54,14 @@ class ProductService:
             raise ProductNotFoundError(f"Продукт c SKU {product_sku} не найден")
         return product
 
+    def find_product(self, product_id: int | None, product_sku: int | None) -> Product:
+        """Поиск продукта"""
+
+        if product_id is None:
+            return self.get_product_by_sku(product_sku)
+        if product_sku is None:
+            return self.get_product_by_id(product_id)
+
     def change_cost(self, product_id: int, new_cost: int) -> Product:
         """Изменяет стоимость продукта"""
         if new_cost < 0:
