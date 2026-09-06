@@ -9,7 +9,9 @@ class Address(Base):
     __tablename__ = "addresses"
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(
+        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
     country = Column(String, nullable=False)
     city = Column(String, nullable=False)
     street = Column(String, nullable=False)
