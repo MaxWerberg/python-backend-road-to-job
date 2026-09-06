@@ -2,11 +2,13 @@ from exceptions.exceptions import (
     CartNotFoundError,
     InvalidQuantityError,
     ItemNotInCartError,
+    ProductNotFoundError,
 )
 from models.cart import Cart
 from models.cart_item import CartItem
 from repositories.cart_item_repository import CartItemRepository
 from repositories.cart_repository import CartRepository
+from repositories.product_repository import ProductRepository
 
 
 class CartItemService:
@@ -14,33 +16,43 @@ class CartItemService:
         self,
         cart_item_repository: CartItemRepository,
         cart_repository: CartRepository,
+        product_repository: ProductRepository,
     ):
         self.cart_repository = cart_repository
         self.cart_item_repository = cart_item_repository
+        self.product_repository = product_repository
 
     def get_cart(self, current_user_id: int) -> Cart:
         cart = self.cart_repository.get_by_current_user_id(current_user_id)
         if not cart:
             raise CartNotFoundError("Корзина пользователя не найдена")
-        return cart
+
+        cart_with_item = self.cart_item_repository.get_all_items_by_cart_id(
+            cart.id,
+        )
+        return {"id": cart.id, "user_id": cart.user_id, "items": cart_with_item}
 
     def add_to_cart(
         self, current_user_id: int, product_id: int, quantity: int
     ) -> CartItem:
         cart = self.get_cart(current_user_id)
-        check_item = self.cart_item_repository.get_item(cart.id, product_id)
 
+        check_item = self.product_repository.get_by_id(product_id)
+        if not check_item:
+            raise ProductNotFoundError("Товар отсутствует в каталоге")
+
+        check_item_cart = self.cart_item_repository.get_item(cart.id, product_id)
         if quantity < 0:
             raise InvalidQuantityError("Значение не может быть отрицательным")
-        if not check_item:
+        if not check_item_cart:
             new_item = CartItem(
                 cart_id=cart.id, product_id=product_id, quantity=quantity
             )
 
             return self.cart_item_repository.create(new_item)
 
-        check_item.quantity += quantity
-        return self.cart_item_repository.update(check_item)
+        check_item_cart.quantity += quantity
+        return self.cart_item_repository.update(check_item_cart)
 
     def change_quantity(
         self, current_user_id: int, product_id: int, new_quantity: int
