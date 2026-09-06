@@ -1,4 +1,4 @@
-from sqlalchemy import DECIMAL, Column, ForeignKey, Integer
+from sqlalchemy import DECIMAL, Column, ForeignKey, Integer, String
 
 from database.database import Base
 
@@ -14,9 +14,10 @@ class OrderItem(Base):
     )
     product_id = Column(
         Integer,
-        ForeignKey("products.id", ondelete="RESTRICT"),
-        nullable=False,
+        ForeignKey("products.id", ondelete="SET NULL"),
+        nullable=True,
         index=True,
     )
     quantity = Column(Integer, nullable=False)
-    price_at_purchase = Column(DECIMAL(precision=10, scale=2), nullable=False)
+    product_price_at_purchase = Column(DECIMAL(precision=10, scale=2), nullable=False)
+    product_title_at_purchase = Column(String, nullable=False)
