@@ -2,6 +2,8 @@ from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 
 from exceptions.exceptions import (
+    AddressLimitExceededError,
+    AddressNotFoundError,
     CartNotFoundError,
     InvalidCredentialsError,
     InvalidPasswordError,
@@ -42,22 +44,24 @@ def register_error_handlers(app: FastAPI) -> None:
             content={"detail": str(exc)},
         )
 
-    # 403 Forbidden
-    @app.exception_handler(NotAnAdminError)
-    def forbidden_error_handler(request: Request, exc: Exception):
-        return JSONResponse(
-            status_code=status.HTTP_403_FORBIDDEN,
-            content={"detail": str(exc)},
-        )
-
     # 404 Not Found
     @app.exception_handler(CartNotFoundError)
     @app.exception_handler(ProductNotFoundError)
     @app.exception_handler(ItemNotInCartError)
     @app.exception_handler(UserNotFoundError)
+    @app.exception_handler(AddressNotFoundError)
     def not_found_error_handler(request: Request, exc: Exception):
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
+            content={"detail": str(exc)},
+        )
+
+    # 403 Forbidden
+    @app.exception_handler(NotAnAdminError)
+    @app.exception_handler(AddressLimitExceededError)
+    def forbidden_error_handler(request: Request, exc: Exception):
+        return JSONResponse(
+            status_code=status.HTTP_403_FORBIDDEN,
             content={"detail": str(exc)},
         )
 

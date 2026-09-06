@@ -3,6 +3,16 @@ class AppException(Exception):
 
 
 # ====== Ошибки, связанные с пользователями =====
+
+
+class AddressLimitExceededError(AppException):
+    """Вызывается, если попытка сохранить новый адрес доставки сверх лимита"""
+
+
+class AddressNotFoundError(AppException):
+    """Вызывается, если не найден адрес пользователя"""
+
+
 class InvalidCredentialsError(AppException):
     """Вызывается при логине, если неверный email или пароль"""
 
