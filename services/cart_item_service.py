@@ -41,12 +41,12 @@ class CartItemService:
         if not check_item:
             raise ProductNotFoundError("Товар отсутствует в каталоге")
 
-        check_item_cart = self.cart_item_repository.get_item(cart.id, product_id)
+        check_item_cart = self.cart_item_repository.get_item(cart["id"], product_id)
         if quantity < 0:
             raise InvalidQuantityError("Значение не может быть отрицательным")
         if not check_item_cart:
             new_item = CartItem(
-                cart_id=cart.id, product_id=product_id, quantity=quantity
+                cart_id=cart["id"], product_id=product_id, quantity=quantity
             )
 
             return self.cart_item_repository.create(new_item)
