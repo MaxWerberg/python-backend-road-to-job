@@ -4,18 +4,22 @@ from fastapi import Depends
 
 from dependencies.auth_dependencies import get_current_user, require_admin
 from dependencies.service_dependencies import (
+    get_address_service,
     get_admin_service,
     get_cart_item_service,
     get_product_service,
     get_user_service,
 )
 from models.user import User
+from services.address_service import AddressService
 from services.admin_service import AdminService
 from services.cart_item_service import CartItemService
 from services.product_service import ProductService
 from services.user_service import UserService
 
 AdminServiceDep = Annotated[AdminService, Depends(get_admin_service)]
+
+AddressServiceDep = Annotated[AddressService, Depends(get_address_service)]
 
 UserServiceDep = Annotated[UserService, Depends(get_user_service)]
 
