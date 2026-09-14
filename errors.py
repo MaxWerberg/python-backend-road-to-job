@@ -12,6 +12,8 @@ from exceptions.exceptions import (
     InvalidTokenError,
     ItemNotInCartError,
     NotAnAdminError,
+    OrderAlreadyExistsError,
+    OrderNotFoundError,
     OutOfStockError,
     PasswordIdenticalToOldError,
     ProductAlreadyExistsError,
@@ -36,6 +38,7 @@ def register_error_handlers(app: FastAPI) -> None:
         )
 
     # 409 Conflict
+    @app.exception_handler(OrderAlreadyExistsError)
     @app.exception_handler(ProductAlreadyExistsError)
     @app.exception_handler(UserAlreadyExistsError)
     def conflict_error_handler(request: Request, exc: Exception):
@@ -49,6 +52,7 @@ def register_error_handlers(app: FastAPI) -> None:
     @app.exception_handler(ProductNotFoundError)
     @app.exception_handler(ItemNotInCartError)
     @app.exception_handler(UserNotFoundError)
+    @app.exception_handler(OrderNotFoundError)
     @app.exception_handler(AddressNotFoundError)
     def not_found_error_handler(request: Request, exc: Exception):
         return JSONResponse(

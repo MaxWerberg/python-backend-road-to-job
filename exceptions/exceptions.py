@@ -81,3 +81,12 @@ class InvalidQuantityError(AppException):
 
 class ItemNotInCartError(AppException):
     """Вызывается, если товара нет в корзине при попытке его изменить или удалить"""
+
+
+# ====== Ошибки, связанные с заказом ====
+class OrderNotFoundError(AppException):
+    """Вызывается, если заказ не найден"""
+
+
+class OrderAlreadyExistsError(AppException):
+    """Вызывается, если заказ уже существует"""
