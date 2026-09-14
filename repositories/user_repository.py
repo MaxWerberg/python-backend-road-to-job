@@ -31,11 +31,10 @@ class UserRepository:
         return updated_user
 
     def delete(self, user_id: int) -> bool:
-        """Удаляет пользователя из базы данных по его ID"""
+        """Меняет active пользователя на deactive по его ID"""
         user = self.db.get(User, user_id)
         if not user:
             return False
-
-        self.db.delete(user)
+        user.is_active = "deactive"
         self.db.flush()
         return True

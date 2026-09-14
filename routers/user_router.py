@@ -69,3 +69,11 @@ def login_user(user_data: LoginSchema, user_service: UserServiceDep):
         email=user_data.email, password=user_data.password
     )
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+@user_router.post("/recovery")
+def recovery_user(user_data: LoginSchema, user_service: UserServiceDep):
+
+    return user_service.recovery_user(
+        email=user_data.email, password=user_data.password
+    )

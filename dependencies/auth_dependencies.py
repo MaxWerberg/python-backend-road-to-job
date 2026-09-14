@@ -24,6 +24,12 @@ def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Пользователь не найден",
         )
+
+    if user.is_active == "deactive":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Аккаунт деактивирован",
+        )
     return user
 
 

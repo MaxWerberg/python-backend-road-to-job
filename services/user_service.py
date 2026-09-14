@@ -90,3 +90,18 @@ class UserService:
         if not user_delete:
             raise UserNotFoundError(f"Пользователь c ID {user_id} не найден")
         return user_delete
+
+    def recovery_user(self, email: str, password: str) -> bool:
+        """Восстановление аккаунта пользователя"""
+        user = self.repository.get_by_email(email)
+
+        if not user or not self._verify_password(password, user.password_hash):
+            raise InvalidCredentialsError("Неверный email или пароль")
+
+        if user.is_active == "deactive":
+            user.is_active = "active"
+            self.repository.update(user)
+            cart = Cart(user_id=user.id)
+            self.cart_repository.create(cart)
+
+        return True

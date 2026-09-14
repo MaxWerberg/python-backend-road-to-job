@@ -13,6 +13,7 @@ class User(Base):
     email = Column(String, unique=True, nullable=False, index=True)
     password_hash = Column(LargeBinary, nullable=False)
     role = Column(String, default="user", nullable=False)
+    is_active = Column(String, default="active", nullable=False)
 
     def update_password_hash(self, new_hash: bytes) -> None:
         """Обновляет хэш пароля пользователя"""
