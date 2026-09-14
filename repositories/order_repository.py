@@ -13,6 +13,14 @@ class OrderRepository:
         self.db.flush()
         return order
 
+    def get_by_user_id(self, user_id: int) -> Order | None:
+        query = select(Order).where(Order.user_id == user_id)
+        return self.db.execute(query).scalar_one_or_none()
+
+    def update(self, order: Order) -> Order:
+        self.db.flush()
+        return order
+
     def delete(self, user_id: int):
         query = select(Order).where(Order.user_id == user_id)
         result = self.db.execute(query).scalar_one_or_none()

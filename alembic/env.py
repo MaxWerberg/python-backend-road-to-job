@@ -8,6 +8,7 @@ from models.address import Address  # noqa: F401
 from models.cart import Cart  # noqa: F401
 from models.cart_item import CartItem  # noqa: F401
 from models.order import Order  # noqa: F401
+from models.order_item import OrderItem  # noqa: F401
 from models.product import Product  # noqa: F401
 from models.user import User  # noqa: F401
 

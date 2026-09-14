@@ -7,6 +7,7 @@ from dependencies.service_dependencies import (
     get_address_service,
     get_admin_service,
     get_cart_item_service,
+    get_order_service,
     get_product_service,
     get_user_service,
 )
@@ -14,6 +15,7 @@ from models.user import User
 from services.address_service import AddressService
 from services.admin_service import AdminService
 from services.cart_item_service import CartItemService
+from services.order_service import OrderService
 from services.product_service import ProductService
 from services.user_service import UserService
 
@@ -30,3 +32,5 @@ CurrentUserDep = Annotated[User, Depends(get_current_user)]
 CurrentAdminDep = Annotated[User, Depends(require_admin)]
 
 CartItemServiceDep = Annotated[CartItemService, Depends(get_cart_item_service)]
+
+OrderServiceDep = Annotated[OrderService, Depends(get_order_service)]

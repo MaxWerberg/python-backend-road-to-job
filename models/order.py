@@ -10,7 +10,7 @@ class Order(Base):
 
     id = Column(Integer, primary_key=True)
     user_id = Column(
-        Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=False, index=True
+        Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True
     )
     address_id = Column(
         Integer,

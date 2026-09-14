@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from models.cart_item import CartItem
@@ -32,10 +32,19 @@ class CartItemRepository:
         return cart_item
 
     def delete(self, cart_id: int, product_id: int):
-        """Удаляет продукт из корзину пользователя"""
+        """Удаляет продукт из корзины пользователя"""
         item = self.get_item(cart_id, product_id)
         if not item:
             return False
         self.db.delete(item)
         self.db.flush()
+        return True
+
+    def delete_all_items(self, cart_id: int):
+        """Удаляет все продукты из корзины пользователя"""
+        deleted = delete(CartItem).where(CartItem.cart_id == cart_id)
+
+        self.db.execute(deleted)
+        self.db.flush()
+
         return True
