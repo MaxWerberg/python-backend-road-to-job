@@ -1,5 +1,3 @@
-from collections.abc import Sequence
-
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -16,25 +14,32 @@ class AddressRepository:
         self.db.refresh(address)
         return address
 
-    def get_by_address_id(self, address_id: int) -> Address:
+    def get_by_address_id(self, address_id: int) -> Address | bool:
         address = self.db.get(Address, address_id)
         if not address:
             return False
         return address
 
-    def get_by_user_id(self, user_id: int) -> Address:
+    def get_by_user_id(self, user_id: int) -> Address | bool:
         query = select(Address).where(Address.user_id == user_id)
         result = self.db.execute(query).scalar_one_or_none()
         if not result:
             return False
         return result
 
-    def get_all_by_user_id(self, user_id) -> Sequence[Address]:
+    def get_all_by_user_id(self, user_id) -> list[Address] | bool:
         query = select(Address).where(Address.user_id == user_id)
         result = self.db.execute(query).scalars().all()
+        if not result:
+            return False
         return result
 
-    def delete(self, address_id: int) -> None:
+    def update(self, address: list[Address]) -> list[Address]:
+        self.db.flush()
+        return address
+
+    def delete(self, address_id: int) -> bool:
         address = self.get_by_address_id(address_id)
         self.db.delete(address)
         self.db.flush()
+        return True
