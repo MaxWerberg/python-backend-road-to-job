@@ -16,7 +16,7 @@ class AddressService:
         house: str,
         apartment: str | None,
         is_default: bool | None = False,
-    ):
+    ) -> Address:
 
         addresses = self.repository.get_all_by_user_id(current_user_id)
         check_summ = len(addresses)
@@ -43,13 +43,13 @@ class AddressService:
 
     def get_one_address(self, user_id) -> Address:
         address = self.repository.get_by_user_id(user_id)
-        if not address:
+        if address is None:
             raise AddressNotFoundError("Адрес не найден")
         return address
 
     def get_all_addresses(self, user_id: int) -> list[Address]:
         addresses = self.repository.get_all_by_user_id(user_id)
-        if not addresses:
+        if addresses is None:
             raise AddressNotFoundError("Адреса не найдены")
         return addresses
 
