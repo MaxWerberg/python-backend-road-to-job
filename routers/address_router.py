@@ -33,6 +33,4 @@ def delete_address(
     address_service: AddressServiceDep,
     current_user: CurrentUserDep,
 ):
-    address_service.delete_per_address_id(
-        current_user_id=current_user.id, address_id=address_id
-    )
+    address_service.delete(user_id=current_user.id, address_id=address_id.address_id)

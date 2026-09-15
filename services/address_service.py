@@ -7,12 +7,6 @@ class AddressService:
     def __init__(self, repository: AddressRepository):
         self.repository = repository
 
-    def get_address(self, user_id) -> Address:
-        address = self.repository.get_by_user_id(user_id)
-        if not address:
-            raise AddressNotFoundError("Адрес не найден")
-        return address
-
     def create(
         self,
         current_user_id: int,
@@ -47,6 +41,43 @@ class AddressService:
         self.repository.create(new_address)
         return new_address
 
-    def delete_per_address_id(self, current_user_id: int, address_id: int):
-        address = self.repository.get_by_address_id(address_id)
-        self.delete_per_address_id(address)
+    def get_one_address(self, user_id) -> Address:
+        address = self.repository.get_by_user_id(user_id)
+        if not address:
+            raise AddressNotFoundError("Адрес не найден")
+        return address
+
+    def get_all_addresses(self, user_id: int) -> list[Address]:
+        addresses = self.repository.get_all_by_user_id(user_id)
+        if not addresses:
+            raise AddressNotFoundError("Адреса не найдены")
+        return addresses
+
+    def make_default_true(self, user_id: int, address_id: int) -> bool:
+        addresses = self.get_all_addresses(user_id)
+
+        address_exists = any(address.id == address_id for address in addresses)
+        if not address_exists:
+            raise AddressNotFoundError("Адрес не найден")
+
+        for address in addresses:
+            if address.id == address_id:
+                address.is_default = True
+            else:
+                address.is_default = False
+
+        self.repository.update(addresses)
+        return True
+
+    def delete(self, user_id: int, address_id: int) -> bool:
+
+        addresses = self.get_all_addresses(user_id)
+        address_exists = any(address.id == address_id for address in addresses)
+        if not address_exists:
+            raise AddressNotFoundError("Адрес не найден")
+
+        for address in addresses:
+            if address.id == address_id:
+                self.repository.delete(address.id)
+                return True
+        return True
