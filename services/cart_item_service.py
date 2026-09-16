@@ -2,6 +2,7 @@ from exceptions.exceptions import (
     CartNotFoundError,
     InvalidQuantityError,
     ItemNotInCartError,
+    OutOfStockError,
     ProductNotFoundError,
 )
 from models.cart import Cart
@@ -39,10 +40,18 @@ class CartItemService:
         cart = self.get_cart(current_user_id)
 
         check_item = self.product_repository.get_by_id(product_id)
-        if not check_item:
+        check_item_cart = self.cart_item_repository.get_item(cart.id, product_id)
+
+        if check_item is None:
             raise ProductNotFoundError("Товар отсутствует в каталоге")
 
-        check_item_cart = self.cart_item_repository.get_item(cart.id, product_id)
+        if (
+            check_item.stock_quantity < quantity
+            or check_item.stock_quantity <= check_item_cart.quantity
+        ):
+            raise OutOfStockError("Недостаточно товара на складе")
+
+        print(check_item_cart.quantity)
 
         if not check_item_cart:
             new_item = CartItem(
