@@ -58,9 +58,9 @@ class ProductService:
         """Поиск продукта"""
 
         if product_id is None:
-            return self.get_product_by_sku(product_sku)
+            return self._get_product_by_sku(product_sku)
         if product_sku is None:
-            return self.get_product_by_id(product_id)
+            return self._get_product_by_id(product_id)
 
     def change_cost(
         self, product_id: int | None, product_sku: int | None, new_cost: int
