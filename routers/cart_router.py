@@ -40,7 +40,7 @@ def change_quantity_product(
     return cart_item_service.change_quantity(
         current_user_id=current_user.id,
         product_id=product.product_id,
-        new_quantity=product.quantity,
+        quantity_delta=product.quantity,
     )
 
 
