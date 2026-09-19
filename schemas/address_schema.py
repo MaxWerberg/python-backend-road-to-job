@@ -8,11 +8,12 @@ ValidStr = Annotated[
 
 
 class AddressResponseSchema(BaseModel):
+    id: int
     country: ValidStr
     city: ValidStr
     street: ValidStr
     house: ValidStr
-    apartment: ValidStr
+    apartment: ValidStr | None
     is_default: bool | None
 
 
@@ -21,7 +22,7 @@ class AddressAddSchema(BaseModel):
     city: ValidStr
     street: ValidStr
     house: ValidStr
-    apartment: ValidStr
+    apartment: ValidStr | None
     is_default: bool | None
 
 
