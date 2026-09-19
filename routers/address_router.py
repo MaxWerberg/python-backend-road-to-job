@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Response, status
 
 from dependencies.type_dependencies import AddressServiceDep, CurrentUserDep
 from schemas.address_schema import (
@@ -27,10 +27,11 @@ def add_address(
     )
 
 
-@address_router.delete("/delete")
+@address_router.delete("/delete", status_code=status.HTTP_204_NO_CONTENT)
 def delete_address(
     address_id: AddressIdSchema,
     address_service: AddressServiceDep,
     current_user: CurrentUserDep,
 ):
     address_service.delete(user_id=current_user.id, address_id=address_id.address_id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
