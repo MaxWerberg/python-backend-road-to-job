@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from pydantic import BaseModel, model_validator
 
 
@@ -6,7 +8,7 @@ class ProductRegisterSchema(BaseModel):
 
     sku: int
     product_name: str
-    product_cost: int
+    product_cost: Decimal
     stock_quantity: int
 
 
@@ -16,7 +18,7 @@ class ProductResponseSchema(BaseModel):
     id: int
     sku: int
     product_name: str
-    product_cost: int
+    product_cost: Decimal
     stock_quantity: int
 
 
@@ -36,7 +38,7 @@ class ProductSearchSchema(BaseModel):
 class ProductChangeCostSchema(ProductSearchSchema):
     """Схема изменения стоимости продукта"""
 
-    new_cost: int
+    new_cost: Decimal
 
 
 class ProductReceiveOrShipSchema(ProductSearchSchema):
