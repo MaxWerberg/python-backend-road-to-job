@@ -14,7 +14,7 @@ class CartRepository:
         self.db.flush()
         return cart
 
-    def get_by_current_user_id(self, current_user_id: int) -> Cart:
+    def get_by_current_user_id(self, current_user_id: int) -> Cart | None:
         """Поиск корзины авторизованного пользователя"""
         query = select(Cart).where(Cart.user_id == current_user_id)
         return self.db.execute(query).scalar_one_or_none()

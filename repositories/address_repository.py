@@ -23,10 +23,16 @@ class AddressRepository:
         result = self.db.execute(query).scalar_one_or_none()
         return result
 
-    def get_all_by_user_id(self, user_id) -> list[Address] | None:
+    def get_all_by_user_id(self, user_id) -> list[Address]:
         query = select(Address).where(Address.user_id == user_id)
         result = self.db.execute(query).scalars().all()
         return result
+
+    def get_by_address_id_default(self, user_id: int) -> Address | None:
+        query = select(Address).where(
+            Address.user_id == user_id, Address.is_default == True
+        )
+        return self.db.execute(query).scalar_one_or_none()
 
     def update(self, address: list[Address]) -> list[Address]:
         self.db.flush()

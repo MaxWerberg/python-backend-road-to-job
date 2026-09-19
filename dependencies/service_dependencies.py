@@ -61,5 +61,10 @@ def get_order_service(db: db_session) -> OrderService:
     repo_product = ProductRepository(db)
     serv_order_item = OrderItemService(repo_product, repo_order_item)
     return OrderService(
-        repo_cart, repo_cart_item, repo_address, repo_order, serv_order_item
+        repo_cart,
+        repo_cart_item,
+        repo_address,
+        repo_order,
+        repo_product,
+        serv_order_item,
     )

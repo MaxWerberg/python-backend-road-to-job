@@ -20,10 +20,9 @@ class CartItemRepository:
         )
         return self.db.execute(cart_query).scalar_one_or_none()
 
-    def get_all_items_by_cart_id(self, cart_id: int) -> list[CartItem]:
+    def get_all_items_by_cart_id(self, cart_id: int) -> list[CartItem] | None:
         """Находит все товары корзины"""
         query = select(CartItem).where(CartItem.cart_id == cart_id)
-
         return self.db.execute(query).scalars().all()
 
     def update(self, cart_item: CartItem) -> CartItem:
