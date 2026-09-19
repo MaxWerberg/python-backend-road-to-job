@@ -26,10 +26,10 @@ class ProductService:
         existing_product = self.repository.get_by_sku(sku)
         if existing_product:
             raise ProductAlreadyExistsError("Товар с таким SKU уже существует")
-        if product_cost < 0:
-            raise InvalidPriceError(
-                "Нельзя добавить продукт с отрицательной стоимостью"
-            )
+        if product_cost <= 0:
+            raise InvalidPriceError("Необходимо указать стоимость товара")
+        if stock_quantity <= 0:
+            raise InvalidQuantityError("Необходимо указать количество товара")
 
         product = Product(
             sku=sku,
